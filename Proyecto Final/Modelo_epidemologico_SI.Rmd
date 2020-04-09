@@ -1,0 +1,48 @@
+---
+title: "R Sistemas EDO "
+
+output: html_notebook
+---
+## Modelo SI
+Definimos la función SI que nos permite calcular las derivadas del modelo SI donde r y beta no son variables globales. A modo de ejemplo, consideraremos un modelo SI de parámetros r = 5, $\beta = 0.2$, S = 999 e I = 1:
+```{r}
+SI <- function(t, x, parametros){
+with(as.list(c(parametros, x)),{
+dS <- - r*beta*S*I/(S+I)
+dI <- + r*beta*S*I/(S+I)
+derivadas <- c(dS, dI)
+#Devolvemos las derivadas calculadas a través de una lista
+return(list(derivadas))
+})
+} 
+```
+
+La la función SI que nos permite calcular las derivadas del
+modelo SI. Al no ser r y beta variables globales, deberemos especificar mediante la orden "with" que queremos utilizar los valores de r y beta del vector parametros para resolver el sistema de ecuaciones diferenciales.  
+Para resolver esta sistema utilizar la libreria deSolve de R
+```{r}
+library(deSolve)
+#Definimos los parámetros del modelo, r y beta
+parametros <- c(r=5, beta=0.2)
+#Definimos los valores iniciales, S e I
+v_iniciales <- c(S=999, I=1)# tiempo cero t=0
+#Definimos los valores de tiempo t para los que deseamos evaluar nuestro modelo
+dt <- seq(0, 20, 0.1)
+#Mediante la función "ode" resolvemos el sistema de ecuaciones diferenciales y generamos un data frame 
+simulacion.si <- as.data.frame(ode(y=v_iniciales, times=dt,                  func=SI,parms=parametros))
+simulacion.si
+```
+
+Una vez generada la solución el objetivo es visualizar y analizar la solución del modelo SI
+```{r}
+#Esta orden nos permite hacer referencia de manera directa a #las columnas de los resultados obtenidos
+attach(simulacion.si)
+#Calculamos el tamaño de la población
+N <- sum(v_iniciales)
+#Representamos gráficamente los resultados obtenidos
+plot(dt, S, type="l", col="blue", ylim=c(0,sum(v_iniciales)),                 xlab="tiempo (en días)", ylab="número de individuos")
+lines(dt, I, type="l", col="red")
+title("Modelo SI: r = 5, beta = 0.2, S = 999, I = 1")
+legend(13, 950, legend=c("Susceptibles", "Infectados"),           col=c("blue", "red"), lty=rep(1, 2)) 
+```
+Tal y como cabía esperar al tratarse de un modelo SI, el número de infectados experimenta el mayor crecimiento durante la etapa intermedia del proceso. 

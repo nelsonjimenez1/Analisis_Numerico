@@ -1,0 +1,19 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+v = 4
+t = 5
+Ev = 0.1
+Et = 0.1
+Ed = v*Et + t*Ev
+ed = Ev/v + Et/t
+
+print(Ed)
+print(ed)
+
+
+
+
+
